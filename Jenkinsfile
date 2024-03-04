@@ -1,30 +1,32 @@
 pipeline {
     agent any
     stages {
+        stage('Cloning') {
+            steps {
+                echo "Cloning from git"
+                sh 'git clone https://github.com/microservices-demo/microservices-demo'
+            }
+        }
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                // Add commands to build your application here
+                mvn clean install
             }
         }
-        stage('Test') {
+        stage('Tests') {
             steps {
                 echo 'Running unit tests...'
-                // Add commands to run unit tests here
-                // For example: sh 'pytest'
+                mvn test
             }
         }
         stage('Deploy to dev') {
-            when {
-                allOf {
-                    branch 'master'
-                    buildingTag()
-                }
-            }
+      
             steps {
                 echo 'Deploying to dev environment...'
-                // Add commands to deploy to your dev environment here
-                // For example: sh 'ssh user@dev-server "bash deploy.sh"'
+                sh 'cd $WORKSPACE/microservices-demo/'
+                sh 'kubectl apply -f manifests/'
             }
         }
     }
+}
+
